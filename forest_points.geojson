@@ -1,0 +1,20 @@
+{
+"type": "FeatureCollection",
+"name": "forest_points",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "NodeID": "Node C", "Orientation": 0.0 }, "geometry": { "type": "Point", "coordinates": [ 30.29670416632846, 59.541927061469963 ] } },
+{ "type": "Feature", "properties": { "NodeID": "Node B", "Orientation": 45.0 }, "geometry": { "type": "Point", "coordinates": [ 30.29246525662743, 59.562913429203576 ] } },
+{ "type": "Feature", "properties": { "NodeID": "Node D", "Orientation": 45.0 }, "geometry": { "type": "Point", "coordinates": [ 30.308801908270421, 59.563682715853254 ] } },
+{ "type": "Feature", "properties": { "NodeID": "Node E", "Orientation": 0.0 }, "geometry": { "type": "Point", "coordinates": [ 30.313004988706204, 59.543019434215765 ] } },
+{ "type": "Feature", "properties": { "NodeID": "Node F", "Orientation": 0.0 }, "geometry": { "type": "Point", "coordinates": [ 30.327845088315382, 59.543755717298346 ] } },
+{ "type": "Feature", "properties": { "NodeID": "Node G", "Orientation": 45.0 }, "geometry": { "type": "Point", "coordinates": [ 30.321737371618763, 59.564380385785583 ] } },
+{ "type": "Feature", "properties": { "NodeID": "Node H", "Orientation": 45.0 }, "geometry": { "type": "Point", "coordinates": [ 30.336791184364699, 59.565227967092554 ] } },
+{ "type": "Feature", "properties": { "NodeID": "Node J", "Orientation": 0.0 }, "geometry": { "type": "Point", "coordinates": [ 30.342439367998441, 59.544917593413018 ] } },
+{ "type": "Feature", "properties": { "NodeID": "Node K", "Orientation": 0.0 }, "geometry": { "type": "Point", "coordinates": [ 30.358377401775943, 59.545240414767655 ] } },
+{ "type": "Feature", "properties": { "NodeID": "Node L", "Orientation": 45.0 }, "geometry": { "type": "Point", "coordinates": [ 30.353946780464252, 59.566440527101754 ] } },
+{ "type": "Feature", "properties": { "NodeID": "Node M", "Orientation": 45.0 }, "geometry": { "type": "Point", "coordinates": [ 30.366467488983908, 59.567017291970885 ] } },
+{ "type": "Feature", "properties": { "NodeID": "Node N", "Orientation": 0.0 }, "geometry": { "type": "Point", "coordinates": [ 30.370254948839165, 59.548505651153114 ] } },
+{ "type": "Feature", "properties": { "NodeID": "Node A", "Orientation": 0.0 }, "geometry": { "type": "Point", "coordinates": [ 30.222167853704637, 59.555711984691555 ] } }
+]
+}
