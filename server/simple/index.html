@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Построение маршрута дрона</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #map { height: 100%; width: 100%; }
+        .rotate-90 {
+            transform: rotate(90deg);
+        }
+        .custom-div-icon {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 24px;
+            height: 24px;
+            background-color: #ff4444;
+            color: white;
+            border-radius: 50%;
+            font-weight: bold;
+        }
+        .default-marker {
+            background-color: #6666ff;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="flex h-screen">
+        <!-- Сворачиваемая панель настроек -->
+        <div id="settings-panel" class="bg-white shadow-lg p-4 transition-all duration-300 flex-shrink-0 overflow-y-auto h-full relative cursor-pointer">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800">Настройки</h2>
+                <button id="toggle-settings" class="text-gray-600 hover:text-gray-800 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Параметры дрона -->
+            <div id="settings-content" class="space-y-2">
+                <h3 class="text-lg font-semibold text-gray-700 border-t border-gray-400 pt-4">Параметры дрона</h3>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Скорость (м/с)</label>
+                    <input type="number" id="droneSpeed" value="10" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Затраты на метр (Дж/м)</label>
+                    <input type="number" id="energyPerMeter" value="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Затраты на повороты</label>
+                    <input type="number" id="turnEnergyFactor" value="1.2" step="0.1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Емкость батареи (Дж)</label>
+                    <input type="number" id="batteryCapacity" value="213480" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                </div>
+
+                <!-- Параметры ACO -->
+                <h3 class="text-lg font-semibold text-gray-700 border-t border-gray-400 pt-4">Параметры АСО</h3>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Муравьев</label>
+                    <input type="number" id="acoAnts" value="20" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Итераций</label>
+                    <input type="number" id="acoIterations" value="100" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Alpha</label>
+                    <input type="number" id="acoAlpha" value="1.0" step="0.1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Beta</label>
+                    <input type="number" id="acoBeta" value="2.0" step="0.1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">RHO</label>
+                    <input type="number" id="acoRho" value="0.1" step="0.1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Q</label>
+                    <input type="number" id="acoQ" value="100" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                </div>
+
+                <!-- Кнопки -->
+                <div class="space-y-2">
+                    <button onclick="calculateRoute()" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Рассчитать маршрут</button>
+                    <button onclick="clearMap()" class="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">Очистить</button>
+                </div>
+            </div>
+
+            <!-- Текст "Parameters" для свёрнутого состояния -->
+            <div id="collapsed-label" class="hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-gray-700 font-semibold text-lg rotate-90">
+                Parameters
+            </div>
+        </div>
+
+        <!-- Карта и блок результатов -->
+        <div class="flex-1 flex flex-col">
+            <!-- Карта -->
+            <div class="flex-1 relative">
+                <div id="map"></div>
+            </div>
+
+            <!-- Блок результатов -->
+            <div id="results-panel" class="bg-white shadow-lg p-4 h-80 overflow-y-auto">
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Детали маршрута</h3>
+                <div id="results-content" class="text-sm text-gray-600">
+                    <p>Детализация маршрута после расчета</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([59.95, 30.31], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        var points = [];
+        var markers = [];
+        var routeLayer = null;
+
+        map.on('click', function(e) {
+            var popupContent = `
+                <form onsubmit="addPoint(event, ${e.latlng.lat}, ${e.latlng.lng})" class="space-y-2">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Высота (м)</label>
+                        <input type="number" name="height" value="50" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Ориентация (°)</label>
+                        <input type="number" name="orientation" value="0" min="0" max="359" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    </div>
+                    <input type="submit" value="Добавить точку" class="w-full bg-indigo-600 text-white py-1 px-2 rounded-md hover:bg-indigo-700">
+                </form>`;
+            L.popup()
+                .setLatLng(e.latlng)
+                .setContent(popupContent)
+                .openOn(map);
+        });
+
+        function addPoint(event, lat, lng) {
+            event.preventDefault();
+            var height = event.target.elements['height'].value;
+            var orientation = event.target.elements['orientation'].value;
+            points.push({lat, lng, height, orientation});
+            
+            var marker = L.marker([lat, lng], {
+                icon: L.divIcon({
+                    className: 'default-marker',
+                    iconSize: [20, 20]
+                })
+            }).bindPopup(`Высота: ${height}m<br>Ориентация: ${orientation}°`)
+              .addTo(map);
+            markers.push(marker);
+            map.closePopup();
+        }
+
+        async function calculateRoute() {
+            if (points.length < 2) {
+                alert("Пожалуйста добавьте как минимум 2 точки");
+                return;
+            }
+
+            const params = {
+                points: points,
+                droneSpeed: document.getElementById('droneSpeed').value,
+                energyPerMeter: document.getElementById('energyPerMeter').value,
+                turnEnergyFactor: document.getElementById('turnEnergyFactor').value,
+                batteryCapacity: document.getElementById('batteryCapacity').value,
+                acoAnts: document.getElementById('acoAnts').value,
+                acoIterations: document.getElementById('acoIterations').value,
+                acoAlpha: document.getElementById('acoAlpha').value,
+                acoBeta: document.getElementById('acoBeta').value,
+                acoRho: document.getElementById('acoRho').value,
+                acoQ: document.getElementById('acoQ').value
+            };
+
+            const response = await fetch('/calculate_route', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(params)
+            });
+            
+            const result = await response.json();
+            drawRoute(result.trajectory, result.best_path);
+            displayResults(result);
+        }
+
+        function drawRoute(trajectory, best_path) {
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+            if (routeLayer) map.removeLayer(routeLayer);
+            routeLayer = L.polyline(trajectory.flat(), {color: 'blue'}).addTo(map);
+
+            // Создаём массив номеров для каждой точки на основе best_path
+            const pointNumbers = new Array(points.length).fill(0);
+            best_path.slice(0, -1).forEach((index, order) => {
+                pointNumbers[index] = order + 1; // Номер в порядке маршрута (1-based)
+            });
+
+            // Отрисовываем маркеры с номерами
+            points.forEach((p, index) => {
+                p.number = pointNumbers[index]; // Сохраняем номер в объекте точки
+                var marker = L.marker([p.lat, p.lng], {
+                    icon: L.divIcon({
+                        className: 'custom-div-icon',
+                        html: p.number,
+                        iconSize: [24, 24]
+                    })
+                }).bindPopup(`Точка ${p.number}<br>Высота: ${p.height}m<br>Ориентация: ${p.orientation}°`)
+                  .addTo(map);
+                markers.push(marker);
+            });
+        }
+
+        function displayResults(result) {
+            const resultsContent = document.getElementById('results-content');
+            let segmentTimesHtml = '<p><strong>Время по сегментам:</strong></p><ul>';
+            result.segment_times.forEach((time, i) => {
+                const startPoint = points[result.best_path[i]].number;
+                const endPoint = points[result.best_path[i + 1]].number;
+                segmentTimesHtml += `<li>${startPoint} → ${endPoint}: ${time.toFixed(2)} s</li>`;
+            });
+            segmentTimesHtml += '</ul>';
+
+            resultsContent.innerHTML = `
+                <p><strong>Длина маршрута:</strong> ${result.best_length.toFixed(2)} м</p>
+                <p><strong>Время полета:</strong> ${result.total_time.toFixed(2)} с (${(result.total_time / 60).toFixed(2)} мин)</p>
+                <p><strong>Использование энергии:</strong> ${result.total_energy.toFixed(2)} Дж</p>
+                <p><strong>Остаток батареи:</strong> ${result.energy_percentage.toFixed(2)}%</p>
+                <p><strong>Лучший маршрут (номера точек):</strong> ${result.best_path.map(i => points[i].number).join(' -> ')}</p>
+                ${segmentTimesHtml}
+            `;
+        }
+
+        function clearMap() {
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+            if (routeLayer) {
+                map.removeLayer(routeLayer);
+                routeLayer = null;
+            }
+            points = [];
+            const resultsContent = document.getElementById('results-content');
+            resultsContent.innerHTML = '<p>Детализация маршрута после расчета</p>';
+        }
+
+        // Логика сворачивания/разворачивания панели
+        const settingsPanel = document.getElementById('settings-panel');
+        const toggleSettings = document.getElementById('toggle-settings');
+        const settingsContent = document.getElementById('settings-content');
+        const collapsedLabel = document.getElementById('collapsed-label');
+
+        settingsPanel.classList.add('w-80');
+        settingsContent.classList.remove('hidden');
+        collapsedLabel.classList.add('hidden');
+
+        function togglePanel() {
+            if (settingsPanel.classList.contains('w-80')) {
+                settingsPanel.classList.remove('w-80');
+                settingsPanel.classList.add('w-12');
+                settingsContent.classList.add('hidden');
+                collapsedLabel.classList.remove('hidden');
+                toggleSettings.innerHTML = `
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>`;
+            } else {
+                settingsPanel.classList.remove('w-12');
+                settingsPanel.classList.add('w-80');
+                settingsContent.classList.remove('hidden');
+                collapsedLabel.classList.add('hidden');
+                toggleSettings.innerHTML = `
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>`;
+            }
+        }
+
+        toggleSettings.addEventListener('click', togglePanel);
+        settingsPanel.addEventListener('click', () => {
+            if (settingsPanel.classList.contains('w-12')) {
+                togglePanel();
+            }
+        });
+    </script>
+</body>
+</html>
