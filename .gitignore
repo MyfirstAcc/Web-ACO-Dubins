@@ -175,3 +175,7 @@ cython_debug/
 
 # lib
 /pydubins
+
+#results
+*.html
+!**/index.html
