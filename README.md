@@ -1,47 +1,110 @@
-ИСПОЛЬЗОВАТЬ Python 3.7.
+ИСПОЛЬЗОВАТЬ Python 3.7, так как библиотека поддерживается только до python 3.7:
 https://piwheels.org/project/dubins/
+  
+### Один из рабочих способов установки на win 11
 
-Один из рабочих способов установки на win 11:
+1. Откройте Visual Studio Installer.
 
-0. Открой Visual Studio Installer.
-Убедись, что установлен компонент "Desktop development with C++" (Разработка настольных приложений на C++). Если его нет, добавь и установи.
-Убедись, что установлен Windows SDK (например, версия 10.x).
+Убедитесь, что установлен компонент "Desktop development with C++" (Разработка настольных приложений на C++). Если его нет, добавьте и установите.
 
-1. Официальный репозиторий библиотеки dubins на GitHub: github.com/AndrewWalker/pydubins.
+Убедитесь, что установлен Windows SDK (например, версия 10.x).
+
+2. Официальный репозиторий библиотеки dubins на GitHub: github.com/AndrewWalker/pydubins.
+
 ```powershell
+
 git clone https://github.com/AndrewWalker/pydubins.git
+
 cd pydubins
+
 ```
 
+3. Добавьте определение M_PI: В начало файла (В папке с исходниками перейди в dubins/src/), после #include директив (например, после #include "dubins.h"), вставьте:
 
-2. Добавь определение M_PI:
-В начало файла
-(В папке с исходниками перейди в dubins/src/), после #include директив (например, после #include "dubins.h"), вставь:
 ```c
+
 #ifndef M_PI
+
 #define M_PI 3.14159265358979323846
+
 #endif
+
 ```
 
-3. Установка модифицированной версии через pip
-Установи зависимости для компиляции
+  4. Установка модифицированной версии через pip
+Важно запускать pip и python с приставкой 3.7(при условии, что он установлен и активно окружение), например:
 ```powershell
-pip install numpy setuptools
+PS C:\Test> python3.7 app.js
+PS C:\Test> pip3.7 install dubins
 ```
-Перейди в папку с исходниками:
+
+Установка окружения:
 ```powershell
+python3.7 -m venv venv
+```
+Активация:
+
+```powershell
+.\venv\Scripts\activate
+```
+
+
+Установите зависимости для компиляции:
+
+```powershell
+
+
+pip3.7 install numpy setuptools
+
+```
+
+Перейдите в папку с исходниками:
+
+```powershell
+
 cd C:\dev\python\dubins-source\pydubins
-```
-Выполни установку:
-```powershell
-pip install .
+
 ```
 
+Выполните установку:
 
-Проверь установку:
-После завершения установки попробуй импортировать:
 ```powershell
-python -c "import dubins; print(dubins.__version__)"
+
+pip3.7 install .
+
 ```
+
+Проверьте установку:
+После завершения установки попробуйте импортировать:
+
+```powershell
+
+python3.7 -c "import dubins; print(dubins.__version__)"
+
+```
+
 Если ошибок нет, всё сработало!
+
+### Перед запуском
+Не забыть установить другие зависимости: 
+```powershell
+pip install -r requirements.txt
+```
+
+### Структура проекта
+  
+
+В решении две версии.
+
+- ACODubinsGIS.py - работает с geojson(QGIS), результат: страница html с маршрутом.
+- ACODubins.py - рандомные точки
+
+
+В папке server:
+- /simple - простая версия сервера с простым подсчётом энергии дрона. Считает энергию как: 
+$$Е_р = L * L/м * K_(поворота)$$ 
+- /realistic - сложная модель подсчёта энергии дрона (экспериментально). Есть баги
+
+
+
 
