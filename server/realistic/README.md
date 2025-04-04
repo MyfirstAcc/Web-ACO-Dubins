@@ -9,11 +9,11 @@ URL статьи: mathmod.esrae.ru/35-129
   
   Сервер получает:
 
-``` json
+``` js
 
 {
 
-  "droneSpeed": 10.0,         // скорость
+  "droneSpeed": 10.0,         /* скорость */
 
   "energyPerMeter": 0.1,  //энергия на метр
 
@@ -68,7 +68,7 @@ URL статьи: mathmod.esrae.ru/35-129
 ```
 Отдает:
 
-``` json
+``` js
 {
   "best_length": 8642.797952, // длина маршрута
   "best_path": [1,3],  // лучшие точки
