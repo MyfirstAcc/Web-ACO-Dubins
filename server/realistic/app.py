@@ -182,11 +182,11 @@ def calculate_energy(points_utm, best_path, turn_radius, drone_speed, data):
 
 def simulate_battery_discharge(total_energy, data, segment_times):
     C_nom = float(data['battery_nominal_capacity']) * 3600 / 1000  # мА·ч в А·с
-    U_init = float(data['battery_initial_voltage'])               # В
-    U_nom = float(data['battery_nominal_voltage'])                # В
-    phi = float(data['capacity_factor'])                          # φ
+    U_init = float(data['battery_initial_voltage'])               # В, начальные
+    U_nom = float(data['battery_nominal_voltage'])                # В, при нагрзуке(?)
+    phi = float(data['capacity_factor'])                          # φ, 
     K = float(data['battery_type_factor'])                        # K
-    t_0 = float(data['battery_discharge_time'])                   # с
+    t_0 = float(data['battery_discharge_time'])                   # с, время разряда (?)
     total_time = sum(segment_times)                               # Общее время, с
 
     C_0 = C_nom  # Начальная ёмкость
@@ -197,10 +197,10 @@ def simulate_battery_discharge(total_energy, data, segment_times):
     energy_consumed = 0
 
     while time_elapsed < total_time and C_bat > C_0 * (1 - phi):
-        # Мощность для текущего момента (предполагаем равномерное потребление)
+        # Мощность для текущего момента (предполагается равномерное потребление (одна скорость))
         N = total_energy / total_time
         I = N / U  # Ток, А
-        C_bat -= I * delta_t  # Уменьшение ёмкости
+        C_bat -= I * delta_t  # Уменьшение ёмкости (равномерно)
         U = U_init - (U_init - U_nom) / (phi * C_0) * (C_0 - C_bat)  # Обновление напряжения
         energy_consumed += N * delta_t
         time_elapsed += delta_t
@@ -210,4 +210,4 @@ def simulate_battery_discharge(total_energy, data, segment_times):
     return energy_consumed, energy_remaining, flight_time_possible
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=6500)

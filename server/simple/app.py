@@ -149,4 +149,4 @@ def calculate_energy(points_utm, best_path, turn_radius, energy_per_meter, turn_
     return total_energy, segment_times
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='localhost', port=6501)
