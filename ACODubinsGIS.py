@@ -5,10 +5,17 @@ import dubins
 from pyproj import Transformer
 
 # Константы дрона
-DRONE_SPEED = 20  # м/с
+DRONE_SPEED = 7.2  # м/с
 ENERGY_PER_METER = 5  # Дж/м
 TURN_ENERGY_FACTOR = 1.2  # Коэффициент для поворотов
-BATTERY_CAPACITY = 213480  # Дж (эквивалент 59.3 Вт·ч, как у DJI Mavic 2)
+BATTERY_CAPACITY = 86_400  # Дж (DJI Mavic 2)
+"""
+E(дж) = Емкость(Aч) * Напряжение(В) * 3600
+Ёмкость (Ач)= 213480/15.4*3600 ~ 3.85 Ач * 1000 ~ 3850 мАч
+
+2000 мАч
+Е = 2*12*3600= 86_400Дж
+"""
 
 # Константы ACO
 ACO_ANTS = 20  # Количество муравьёв
