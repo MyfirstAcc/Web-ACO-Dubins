@@ -98,18 +98,10 @@ pip install -r requirements.txt
 ```
 
 ##### Структура проекта
-  
-
-В решении две версии.
-
-- ACODubinsGIS.py - работает с geojson(QGIS), результат: страница html с маршрутом.
-- ACODubins.py - рандомные точки
-
-
 ```cmd
 │   .gitignore
 │   ACODubins.py :: тест библиотеки Дубинс 
-│   ACODubinsGIS.py :: тест Dubins на реальных координатах - ".geojson"
+│   ACODubinsGIS.py :: тест Dubins на реальных координатах - ".geojson". Результат: страница html с маршрутом.
 │   forest_points.geojson :: тестовые точки
 │   README.md
 │   requirements.txt
